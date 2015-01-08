@@ -19,7 +19,6 @@ include(dirname(__FILE__) . '/includes/actions.php');
 include(dirname(__FILE__) . '/includes/notices.php');
 include(dirname(__FILE__) . '/includes/series.php');
 include(dirname(__FILE__) . '/includes/facebook-previews.php');
-include(dirname(__FILE__) . '/includes/scripts.php');
 include(dirname(__FILE__) . '/includes/edd-custom.php');
 include(dirname(__FILE__) . '/includes/metaboxes.php');
 include(dirname(__FILE__) . '/includes/show-plugin-info.php');
