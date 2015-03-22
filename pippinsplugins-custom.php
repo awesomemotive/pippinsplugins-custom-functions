@@ -260,3 +260,26 @@ function pw_button_shortcode( $atts, $content = null ) {
 	return '<a href="' . esc_url( $atts['link'] ) . '" class="edd-submit button blue">' . $content . '</a>';
 }
 add_shortcode( 'button', 'pw_button_shortcode' );
+
+/**
+ * Add rss image
+ */
+function pw_rss_featured_image() {
+    global $post;
+    
+    if ( has_post_thumbnail( $post->ID ) ) {
+      $thumbnail = wp_get_attachment_url( get_post_thumbnail_id( $post->ID ) );
+      ?>
+      <media:content url="<?php echo $thumbnail; ?>" type="image" medium="image" width="600" height="300"></media:content>
+    <?php }
+}
+add_filter( 'rss2_item', 'pw_rss_featured_image' );
+
+/**
+ * Add rss namespaces
+ */
+function pp_rss_namespace() {
+    echo 'xmlns:media="http://search.yahoo.com/mrss/"
+    xmlns:georss="http://www.georss.org/georss"';
+}
+add_filter( 'rss2_ns', 'pp_rss_namespace' );
