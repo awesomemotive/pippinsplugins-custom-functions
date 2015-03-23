@@ -33,7 +33,7 @@ add_filter( 'edd_api_log_requests', '__return_false' );
 
 function pw_edd_searchwp_indexed_types( $types ) {
 
-	return array( 'post', 'page' );
+	return array( 'post', 'page', 'download' );
 
 }
 add_filter( 'searchwp_indexed_post_types', 'pw_edd_searchwp_indexed_types' );
