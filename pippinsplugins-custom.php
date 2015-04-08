@@ -33,7 +33,7 @@ add_filter( 'edd_api_log_requests', '__return_false' );
 
 function pw_edd_searchwp_indexed_types( $types ) {
 
-	return array( 'post', 'page' );
+	return array( 'post', 'page', 'download' );
 
 }
 add_filter( 'searchwp_indexed_post_types', 'pw_edd_searchwp_indexed_types' );
@@ -261,6 +261,7 @@ function pw_button_shortcode( $atts, $content = null ) {
 }
 add_shortcode( 'button', 'pw_button_shortcode' );
 
+
 /**
  * Add rss image
  */
@@ -283,7 +284,6 @@ function pp_rss_namespace() {
     xmlns:georss="http://www.georss.org/georss"';
 }
 add_filter( 'rss2_ns', 'pp_rss_namespace' );
-
 
 /**
  * Removes styling from Better Click To Tweet plugin
