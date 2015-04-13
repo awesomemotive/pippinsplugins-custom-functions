@@ -292,3 +292,8 @@ function affwp_remove_bctt_styling() {
   remove_action('wp_enqueue_scripts', 'bctt_scripts');
 }
 add_action( 'template_redirect', 'affwp_remove_bctt_styling' );
+
+/**
+ * Removes styling from Better Click To Tweet plugin
+ */
+remove_action( 'wp_enqueue_scripts', 'edd_sl_scripts' );
