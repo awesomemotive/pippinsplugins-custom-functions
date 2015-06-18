@@ -28,7 +28,10 @@ include(dirname(__FILE__) . '/includes/post-series.php');
 
 
 add_filter( 'gform_enable_shortcode_notification_message', '__return_false' );
-add_filter( 'edd_api_log_requests', '__return_false' );
+function pw_edd_disable_api_logging() {
+	add_filter( 'edd_api_log_requests', '__return_false' );
+}
+add_action( 'plugins_loaded', 'pw_edd_disable_api_logging' );
 
 function pw_edd_searchwp_indexed_types( $types ) {
 
