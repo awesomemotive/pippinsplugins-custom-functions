@@ -150,7 +150,7 @@ function pw_connection_types() {
     ) );
 
     // add-ons
-    p2p_register_connection_type( 
+    p2p_register_connection_type(
     	array(
 	        'name'       => 'downloads_to_add-ons',
 	        'from'       => 'download',
@@ -162,7 +162,7 @@ function pw_connection_types() {
     );
 
     // related blog psots
-    p2p_register_connection_type( 
+    p2p_register_connection_type(
       array(
           'name'       => 'downloads_to_posts',
           'from'       => 'download',
@@ -175,7 +175,7 @@ function pw_connection_types() {
     );
 
     // documentation
-    p2p_register_connection_type( 
+    p2p_register_connection_type(
     	array(
 	        'name'       => 'docs_to_downloads',
 	        'from'       => 'documentation',
@@ -239,16 +239,16 @@ remove_action( 'plugins_loaded', array( 'EDD_Heartbeat', 'init' ) );
 
 // We need to register the EDD post types now b/c they
 // are registered on the init hook in EDD core.
-// The EDD post types needs to be registered now 
+// The EDD post types needs to be registered now
 // order for get_permalink() to return the correct URL/s.
 function pw_edd_sl_remote_actions_short_init() {
-	
-	$remote_actions = array( 'activate_license', 'deactivate_license', 'check_license', 'get_version' ); 
+
+	$remote_actions = array( 'activate_license', 'deactivate_license', 'check_license', 'get_version' );
 
 	if ( isset( $_REQUEST['edd_action'] ) && in_array( $_REQUEST['edd_action'], $remote_actions ) ) {
-		
+
 		edd_setup_edd_post_types();
-		
+
 		do_action( 'edd_' . $_REQUEST['edd_action'], $_REQUEST );
 	}
 
@@ -258,7 +258,7 @@ add_action( 'setup_theme', 'pw_edd_sl_remote_actions_short_init', -9999 );
 function pw_button_shortcode( $atts, $content = null ) {
 
 	$atts = shortcode_atts( array( 'link' => '' ), $atts );
-	
+
 	return '<a href="' . esc_url( $atts['link'] ) . '" class="edd-submit button blue">' . $content . '</a>';
 }
 add_shortcode( 'button', 'pw_button_shortcode' );
@@ -269,7 +269,7 @@ add_shortcode( 'button', 'pw_button_shortcode' );
  */
 function pw_rss_featured_image() {
     global $post;
-    
+
     if ( has_post_thumbnail( $post->ID ) ) {
       $thumbnail = wp_get_attachment_url( get_post_thumbnail_id( $post->ID ) );
       $mime_type = get_post_mime_type( get_post_thumbnail_id( $post->ID ) );
@@ -300,3 +300,42 @@ add_action( 'template_redirect', 'affwp_remove_bctt_styling' );
  * Removes styling from EDD Software licensing
  */
 remove_action( 'wp_enqueue_scripts', 'edd_sl_scripts' );
+
+
+/**
+ * Detect if the user came from the restrict content pro site
+ */
+function pp_came_from_rcp() {
+
+	if ( isset( $_GET['referrer'] ) && 'rcp_site' === $_GET['referrer'] ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Set session variable in case they move around the site
+ */
+function pp_rcp_referrer_listener() {
+
+	if ( pp_came_from_rcp() ) {
+		// store variable into session
+		EDD()->session->set( 'came_from_rcp', true );
+	}
+}
+add_action( 'template_redirect', 'pp_rcp_referrer_listener' );
+
+/**
+ * Store meta key with payment for future use
+ * Will eventually be used to track how many purchases come from the RCP site
+ */
+function pp_rcp_store_payment_meta( $payment, $payment_data ) {
+
+	// store meta
+	if ( EDD()->session->get( 'came_from_rcp' ) ) {
+		update_post_meta( $payment, '_edd_payment_from_rcp', true );
+	}
+
+}
+add_action( 'edd_insert_payment', 'pp_rcp_store_payment_meta', 10, 2 );
