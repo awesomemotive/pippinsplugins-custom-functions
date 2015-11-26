@@ -5,7 +5,7 @@
 * as read for users.
 * Notice IDs are checked against the ID of the
 * broadcasted post on CGC, then added to
-* the user's meta. 
+* the user's meta.
 **********************************************/
 
 /////////////////////////////////////////////////
@@ -44,9 +44,9 @@ add_action('init', 'pippin_create_notices');
 function pippin_display_announcement() {
 
 	/// this displays the notification area if the user has not read it before
-	global $current_user; 
+	global $current_user;
 	$notices = get_transient('pippin_notices');
-	if($notices === false) {	
+	if($notices === false) {
 		$notice_args = array('post_type' => 'notices', 'posts_per_page' => 1);
 		$notices = get_posts($notice_args);
 		set_transient('pippin_notices', $notices, 7200);
@@ -56,9 +56,11 @@ function pippin_display_announcement() {
 			<?php if(pippin_check_notice_is_read($notice->ID, $current_user->ID) != true) { ?>
 				<div id="notification-area">
 					<div class="wrapper box">
-						<h4><?php echo get_the_title( $notice->ID ); ?></h4>
 
-						
+						<?php /*
+						<h4><?php echo get_the_title( $notice->ID ); ?></h4>
+						*/ ?>
+
 
 						<?php echo wpautop( $notice->post_content ); ?>
 
@@ -77,8 +79,16 @@ function pippin_display_announcement() {
 		<?php }
 	endif;
 }
-add_action( 'pp_content_start', 'pippin_display_announcement', 0 );
 
+function pp_show_notices() {
+
+	if ( is_front_page() ) {
+		add_action( 'pp_site_before', 'pippin_display_announcement', 0 );
+	} else {
+		add_action( 'pp_content_start', 'pippin_display_announcement', 0 );
+	}
+}
+add_action( 'template_redirect', 'pp_show_notices' );
 
 
 // function used to clear transients when saving posts
@@ -139,7 +149,7 @@ add_action('wp_ajax_mark_as_read', 'pippin_notice_mark_as_read');
 
 function pippin_notice_js() {
 	wp_enqueue_script( "notifications", PIPPIN_PLUGIN_DIR . 'js/notifications.js', array( 'jquery' ) );
-	wp_localize_script( 'notifications', 'notices_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )) );	
+	wp_localize_script( 'notifications', 'notices_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )) );
 }
- 
+
 add_action('wp_print_scripts', 'pippin_notice_js');
