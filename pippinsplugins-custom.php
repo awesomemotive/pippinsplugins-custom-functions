@@ -339,3 +339,29 @@ function pp_rcp_store_payment_meta( $payment, $payment_data ) {
 
 }
 add_action( 'edd_insert_payment', 'pp_rcp_store_payment_meta', 10, 2 );
+
+// Redirect Easy Content Types get_version requests to Theme Isle
+function pw_redirect_ecpt_version_check() {
+
+	if( empty( $_REQUEST['edd_action'] ) ) {
+		return;
+	}
+
+	if( 'get_version' !== $_REQUEST['edd_action'] ) {
+		return;
+	}
+
+	if( empty( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	if( 'Easy Content Types' !== urldecode( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	$license = ! empty( $_REQUEST['license'] ) ? $_REQUEST['license'] : '';
+
+	wp_redirect( 'http://themeisle.com/?edd_action=get_version&item_name=Easy+Content+Types&license=' . $license ); exit;
+
+}
+add_action( 'init', 'pw_redirect_ecpt_version_check', -99999 );
