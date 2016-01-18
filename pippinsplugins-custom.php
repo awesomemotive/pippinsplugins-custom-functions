@@ -364,4 +364,4 @@ function pw_redirect_ecpt_version_check() {
 	wp_redirect( 'http://themeisle.com/?edd_action=get_version&item_name=Easy+Content+Types&license=' . $license ); exit;
 
 }
-add_action( 'init', 'pw_redirect_ecpt_version_check', -99999 );
+add_action( 'setup_theme', 'pw_redirect_ecpt_version_check', -999999 );
