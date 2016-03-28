@@ -373,7 +373,14 @@ function pw_redirect_rcp_version_check() {
 		return;
 	}
 
-	if( 'get_version' !== $_REQUEST['edd_action'] ) {
+	$actions = array(
+		'get_version',
+		'check_license',
+		'activate_license',
+		'deactivate_license',
+	);
+
+	if( ! in_array( $_REQUEST['edd_action'], $actions ) ) {
 		return;
 	}
 
@@ -386,8 +393,9 @@ function pw_redirect_rcp_version_check() {
 	}
 
 	$license = ! empty( $_REQUEST['license'] ) ? $_REQUEST['license'] : '';
+	$url     = ! empty( $_REQUEST['url    '] ) ? $_REQUEST['url    '] : '';
 
-	wp_redirect( 'https://restrictcontentpro.com/?edd_action=get_version&item_id=479&license=' . $license ); exit;
+	wp_redirect( 'https://restrictcontentpro.com/?edd_action=' . $_REQUEST['edd_action'] . '&item_id=479&license=' . $license . '&url=' . $url ); exit;
 
 }
 add_action( 'setup_theme', 'pw_redirect_rcp_version_check', -999999 );
