@@ -399,3 +399,23 @@ function pw_redirect_rcp_version_check() {
 
 }
 add_action( 'setup_theme', 'pw_redirect_rcp_version_check', -999999 );
+
+function pw_listen_for_rcp_renewal_checkout() {
+
+	if( ! function_exists( 'edd_is_checkout' ) || ! edd_is_checkout() ) {
+		return;
+	}
+
+	if( empty( $_GET['edd_license_key'] ) ) {
+		return;
+	}
+
+	$license_key = sanitize_text_field( $_GET['edd_license_key'] );
+	$license_id  = edd_software_licensing()->get_license_by_key( $license_key );
+	$download_id = edd_software_licensing()->get_download_id( $license_id );
+	if( 7460 == $download_id ) {
+		wp_redirect( 'https://restrictcontentpro.com/checkout/?edd_license_key=' . $license_key ); exit;
+	}
+
+}
+add_action( 'template_redirect', 'pw_listen_for_rcp_renewal_checkout' );
