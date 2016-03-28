@@ -365,3 +365,29 @@ function pw_redirect_ecpt_version_check() {
 
 }
 add_action( 'setup_theme', 'pw_redirect_ecpt_version_check', -999999 );
+
+// Redirect Restrict Content Pro get_version requests to restrictcontentpro.com
+function pw_redirect_rcp_version_check() {
+
+	if( empty( $_REQUEST['edd_action'] ) ) {
+		return;
+	}
+
+	if( 'get_version' !== $_REQUEST['edd_action'] ) {
+		return;
+	}
+
+	if( empty( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	if( 'Restrict Content Pro' !== urldecode( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	$license = ! empty( $_REQUEST['license'] ) ? $_REQUEST['license'] : '';
+
+	wp_redirect( 'https://restrictcontentpro.com/?edd_action=get_version&item_id=479&license=' . $license ); exit;
+
+}
+add_action( 'setup_theme', 'pw_redirect_rcp_version_check', -999999 );
