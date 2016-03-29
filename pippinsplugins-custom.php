@@ -379,3 +379,58 @@ function pp_filter_license_keys( $license_keys, $user_id ) {
 
 }
 add_filter( 'edd_sl_get_License_keys_of_user', 'pp_filter_license_keys', 10, 2 );
+
+
+// Redirect Restrict Content Pro get_version requests to restrictcontentpro.com
+function pw_redirect_rcp_version_check() {
+
+	if( empty( $_REQUEST['edd_action'] ) ) {
+		return;
+	}
+
+	$actions = array(
+		'get_version',
+		'check_license',
+		'activate_license',
+		'deactivate_license',
+	);
+
+	if( ! in_array( $_REQUEST['edd_action'], $actions ) ) {
+		return;
+	}
+
+	if( empty( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	if( 'Restrict Content Pro' !== urldecode( $_REQUEST['item_name'] ) ) {
+		return;
+	}
+
+	$license = ! empty( $_REQUEST['license'] ) ? $_REQUEST['license'] : '';
+	$url     = ! empty( $_REQUEST['url    '] ) ? $_REQUEST['url    '] : '';
+
+	wp_redirect( 'https://restrictcontentpro.com/?edd_action=' . $_REQUEST['edd_action'] . '&item_id=479&license=' . $license . '&url=' . $url ); exit;
+
+}
+add_action( 'setup_theme', 'pw_redirect_rcp_version_check', -999999 );
+
+function pw_listen_for_rcp_renewal_checkout() {
+
+	if( ! function_exists( 'edd_is_checkout' ) || ! edd_is_checkout() ) {
+		return;
+	}
+
+	if( empty( $_GET['edd_license_key'] ) ) {
+		return;
+	}
+
+	$license_key = sanitize_text_field( $_GET['edd_license_key'] );
+	$license_id  = edd_software_licensing()->get_license_by_key( $license_key );
+	$download_id = edd_software_licensing()->get_download_id( $license_id );
+	if( 7460 == $download_id ) {
+		wp_redirect( 'https://restrictcontentpro.com/checkout/?edd_license_key=' . $license_key ); exit;
+	}
+
+}
+add_action( 'template_redirect', 'pw_listen_for_rcp_renewal_checkout' );
