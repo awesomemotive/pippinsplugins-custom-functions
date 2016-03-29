@@ -365,3 +365,17 @@ function pw_redirect_ecpt_version_check() {
 
 }
 add_action( 'setup_theme', 'pw_redirect_ecpt_version_check', -999999 );
+
+// Filter out private licnese keys (RCP Migration)
+function pp_filter_license_keys( $license_keys, $user_id ) {
+
+	foreach ( $license_keys as $index => $license_key ) {
+		if ( 'private' === $license_key->post_status ) {
+			unset( $license_keys[ $index ] );
+		}
+	}
+
+	return $license_keys;
+
+}
+add_filter( 'edd_sl_get_License_keys_of_user', 'pp_filter_license_keys', 10, 2 );
