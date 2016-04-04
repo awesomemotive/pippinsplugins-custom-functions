@@ -391,6 +391,7 @@ function pw_redirect_rcp_version_check() {
 	$actions = array(
 		'get_version',
 		'check_license',
+		'package_download',
 		'activate_license',
 		'deactivate_license',
 	);
@@ -399,11 +400,14 @@ function pw_redirect_rcp_version_check() {
 		return;
 	}
 
-	if( empty( $_REQUEST['item_name'] ) ) {
+	if( empty( $_REQUEST['item_name'] ) && empty( $_REQUEST['item_id'] ) ) {
 		return;
 	}
 
-	if( 'Restrict Content Pro' !== urldecode( $_REQUEST['item_name'] ) ) {
+	$item_id   = isset( $_REQUEST['item_id'] )   ? (int) $_REQUEST['item_id']          : 0;
+	$item_name = isset( $_REQUEST['item_name'] ) ? urldecode( $_REQUEST['item_name'] ) : '';
+
+	if( 'Restrict Content Pro' !== $item_name && 7460 !== $item_id ) {
 		return;
 	}
 
