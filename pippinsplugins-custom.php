@@ -439,18 +439,18 @@ function pw_listen_for_rcp_renewal_checkout() {
 }
 add_action( 'template_redirect', 'pw_listen_for_rcp_renewal_checkout' );
 
-// Auto apply BFCM
-function pw_edd_auto_apply_discount() {
+/**
+ * Auto apply BFCM discount
+ */
+function pp_edd_auto_apply_discount() {
 
-	if( function_exists( 'edd_is_checkout' ) && edd_is_checkout() ) {
+	if ( function_exists( 'edd_is_checkout' ) && edd_is_checkout() ) {
 
-		if( ! edd_cart_has_discounts() && edd_is_discount_valid( 'BFCM2016' ) ) {
-
+		if ( ! edd_cart_has_discounts() && edd_is_discount_valid( 'BFCM2016', '', false ) ) {
 			edd_set_cart_discount( 'BFCM2016' );
-
 		}
 
 	}
 
 }
-add_action( 'template_redirect', 'pw_edd_auto_apply_discount' );
+add_action( 'template_redirect', 'pp_edd_auto_apply_discount' );
