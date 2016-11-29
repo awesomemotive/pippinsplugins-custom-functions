@@ -453,4 +453,4 @@ function pp_edd_auto_apply_discount() {
 	}
 
 }
-add_action( 'template_redirect', 'pp_edd_auto_apply_discount' );
+//add_action( 'template_redirect', 'pp_edd_auto_apply_discount' );
