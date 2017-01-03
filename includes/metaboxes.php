@@ -1,5 +1,5 @@
 <?php
-/**		
+/**
  * Metaboxes
  * @since 1.0
 */
@@ -46,7 +46,7 @@ function pp_custom_redirect_coming_soon() {
 
 		wp_redirect( $redirect_url, 301 ); exit;
 	}
-	
+
 }
 add_action( 'template_redirect', 'pp_custom_redirect_coming_soon' );
 
@@ -66,12 +66,12 @@ function pp_custom_product_is_coming_soon( $download_id ) {
 	return (bool) false;
 }
 
-/**		
+/**
  * Video Metabox callback
  * https://vimeo.com/78265050
 */
 function pp_video_meta_box( $post ) {
-	
+
 	$is_video_premium = get_post_meta( $post->ID, 'pp_premium', true );
 	$video_url        = get_post_meta( $post->ID, 'pp_mp4', true );
 	?>
@@ -86,7 +86,7 @@ function pp_video_meta_box( $post ) {
 	<p>
 		<label for="pp-video-url" class="screen-reader-text">
 			<?php _e( 'Video URL', 'pp' ); ?>
-		</label>	
+		</label>
 		<input class="widefat" type="text" name="pp_mp4" id="pp-video-url" value="<?php echo esc_url( $video_url ); ?>" size="30" />
 	</p>
 
@@ -96,13 +96,13 @@ function pp_video_meta_box( $post ) {
 <?php }
 
 
-/**		
+/**
  * Product Metabox callback
  * @since 1.0
 */
 function pp_product_meta_box( $post ) {
 	?>
-	
+
 	<p>
 		<label for="pp-product-coming-soon">
 			<input type="checkbox" name="pp_product_coming_soon" id="pp-product-coming-soon" value="1" <?php checked( true, pp_custom_product_is_coming_soon( $post->ID ) ); ?> />
@@ -115,7 +115,7 @@ function pp_product_meta_box( $post ) {
 	<p>
 		<label for="pp-product-download-url" class="screen-reader-text">
 			<?php _e( 'External Download URL', 'pp' ); ?>
-		</label>	
+		</label>
 		<input class="widefat" type="text" name="pp_product_download_url" id="pp-product-download-url" value="<?php echo esc_attr( get_post_meta( $post->ID, '_pp_product_download_url', true ) ); ?>" size="30" />
 	</p>
 
@@ -123,7 +123,7 @@ function pp_product_meta_box( $post ) {
 	<p>
 		<label for="pp-product-support-url" class="screen-reader-text">
 			<?php _e( 'External Support URL', 'pp' ); ?>
-		</label>	
+		</label>
 		<input class="widefat" type="text" name="pp_product_support_url" id="pp-product-support-url" value="<?php echo esc_attr( get_post_meta( $post->ID, '_pp_product_support_url', true ) ); ?>" size="30" />
 	</p>
 
@@ -131,14 +131,26 @@ function pp_product_meta_box( $post ) {
 	<p>
 		<label for="pp-product-doc-url" class="screen-reader-text">
 			<?php _e( 'External Documentation URL', 'pp' ); ?>
-		</label>	
+		</label>
 		<input class="widefat" type="text" name="pp_product_doc_url" id="pp-product-doc-url" value="<?php echo esc_attr( get_post_meta( $post->ID, '_pp_product_doc_url', true ) ); ?>" size="30" />
 	</p>
 
-	<p><strong><?php _e( 'Documentation Category', 'pp' ); ?></strong></p>
+
+
+	<?php
+		$args = array(
+			'hide_empty' => false,
+			'parent' => 0
+		);
+		$terms = get_terms( 'doc_category', $args );
+
+		if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) : ?>
+
+		<p><strong><?php _e( 'Documentation Category', 'pp' ); ?></strong></p>
+
 	<p>
 		<label for="pp-product-support-url" class="screen-reader-text">
-			<?php _e( 'External Support URL', 'pp' ); ?>
+			<?php _e( 'Documentation Category', 'pp' ); ?>
 		</label>
 		<?php
 			$args = array(
@@ -148,15 +160,17 @@ function pp_product_meta_box( $post ) {
 			$terms = get_terms( 'doc_category', $args );
 
 			$selected = (int) get_post_meta( $post->ID, '_pp_product_doc_term_id', true );
-	
+
 		?>
 		<select class="widefat" name="pp_product_doc_term_id">
 			<option value="0">Choose doc category</option>
 			<?php foreach ( $terms as $term ) { ?>
 				<option value="<?php echo $term->term_id; ?>" <?php selected( $selected, $term->term_id ); ?>><?php echo $term->name; ?></option>
 			<?php } ?>
-		</select>	
+		</select>
 	</p>
+
+	<?php endif; ?>
 
 	<?php wp_nonce_field( 'pp_product_metaboxes', 'pp_product_metaboxes' ); ?>
 
@@ -177,7 +191,7 @@ function pp_product_save_post( $post_id ) {
 		if ( ! current_user_can( 'edit_post', $post_id ) )
 	    	return;
 	}
-	
+
 	if ( ! isset( $_POST['pp_product_metaboxes'] ) || ! wp_verify_nonce( $_POST['pp_product_metaboxes'], 'pp_product_metaboxes' ) ) {
 		return;
 	}
@@ -185,11 +199,11 @@ function pp_product_save_post( $post_id ) {
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ( defined( 'DOING_AJAX') && DOING_AJAX ) || isset( $_REQUEST['bulk_edit'] ) ) {
 		return;
 	}
-	
+
 	if ( isset( $post->post_type ) && 'revision' == $post->post_type ) {
 		return;
-	} 
-	
+	}
+
 	if ( ! current_user_can( 'edit_product', $post_id ) ) {
 		return;
 	}
@@ -204,13 +218,13 @@ function pp_product_save_post( $post_id ) {
 			'pp_product_doc_term_id'
 		)
 	);
-	
+
 	$edd_sl_version = isset( $_POST['edd_sl_version'] ) ? $_POST['edd_sl_version'] : '';
 
 	// software licensing version number
 	if ( isset( $edd_sl_version ) ) {
 		$current = get_post_meta( $post_id, '_edd_sl_version', true );
-		
+
 		if ( $edd_sl_version !== $current ) {
 			update_post_meta( $post_id, '_pp_product_last_updated', current_time( 'timestamp' ) );
 		}
@@ -237,21 +251,21 @@ function pp_product_save_post( $post_id ) {
 		// Get the meta value of the custom field key.
 		$meta_value = get_post_meta( $post_id, $meta_key, true );
 
-		// If a new meta value was added and there was no previous value, add it. 
+		// If a new meta value was added and there was no previous value, add it.
 		if ( $new && '' == $meta_value ) {
 			add_post_meta( $post_id, $meta_key, $new, true );
 		}
 
-		// If the new meta value does not match the old value, update it. 
+		// If the new meta value does not match the old value, update it.
 		elseif ( $new && $new != $meta_value ) {
 			update_post_meta( $post_id, $meta_key, $new );
 		}
 
-		// If there is no new meta value but an old value exists, delete it. 
+		// If there is no new meta value but an old value exists, delete it.
 		elseif ( '' == $new && $meta_value ) {
 			delete_post_meta( $post_id, $meta_key, $meta_value );
 		}
-		
+
 	}
 }
 add_action( 'save_post', 'pp_product_save_post', 1 );
@@ -269,7 +283,7 @@ function pp_save_post( $post_id ) {
 		if ( ! current_user_can( 'edit_post', $post_id ) )
 	    	return;
 	}
-	
+
 	if ( ! isset( $_POST['pp_video_metaboxes'] ) || ! wp_verify_nonce( $_POST['pp_video_metaboxes'], 'pp_video_metaboxes' ) ) {
 		return;
 	}
@@ -277,11 +291,11 @@ function pp_save_post( $post_id ) {
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || ( defined( 'DOING_AJAX') && DOING_AJAX ) || isset( $_REQUEST['bulk_edit'] ) ) {
 		return;
 	}
-	
+
 	if ( isset( $post->post_type ) && 'revision' == $post->post_type ) {
 		return;
-	} 
-	
+	}
+
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
@@ -291,7 +305,7 @@ function pp_save_post( $post_id ) {
 			'pp_premium'
 		)
 	);
-	
+
 	foreach ( $fields as $field ) {
 
 		$new = ( isset( $_POST[ $field ] ) ? esc_attr( $_POST[ $field ] ) : '' );
@@ -308,21 +322,21 @@ function pp_save_post( $post_id ) {
 		// Get the meta value of the custom field key.
 		$meta_value = get_post_meta( $post_id, $meta_key, true );
 
-		// If a new meta value was added and there was no previous value, add it. 
+		// If a new meta value was added and there was no previous value, add it.
 		if ( $new && '' == $meta_value ) {
 			add_post_meta( $post_id, $meta_key, $new, true );
 		}
 
-		// If the new meta value does not match the old value, update it. 
+		// If the new meta value does not match the old value, update it.
 		elseif ( $new && $new != $meta_value ) {
 			update_post_meta( $post_id, $meta_key, $new );
 		}
 
-		// If there is no new meta value but an old value exists, delete it. 
+		// If there is no new meta value but an old value exists, delete it.
 		elseif ( '' == $new && $meta_value ) {
 			delete_post_meta( $post_id, $meta_key, $meta_value );
 		}
-		
+
 	}
 }
 add_action( 'save_post', 'pp_save_post', 1 );
