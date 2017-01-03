@@ -240,7 +240,7 @@ function pp_product_save_post( $post_id ) {
 		}
 
 		// documentation term ID
-		if ( $field == 'pp_product_doc_term_id' ) {
+		if ( $field == 'pp_product_doc_term_id' && ! empty( $_POST['pp_product_doc_term_id'] ) ) {
 			$new = $_POST[ $field ] ? $_POST[ $field ] : '';
 		}
 
