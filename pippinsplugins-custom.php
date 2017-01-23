@@ -50,7 +50,19 @@ function shd_maybe_redirect() {
 	try {
 
 		$customer = \Stripe\Customer::retrieve( $customer_id );
-		wp_redirect( 'https://restrictcontentpro.com/account/?sh_action=update#tabs=1' ); exit;
+
+		if( ! empty( $customer->subscriptions->data ) ) {
+
+			foreach( $customer->subscriptions->data as $sub ) {
+				if( false !== strpos( $sub->plan->name, 'restrict-content-pro' ) ) {
+					wp_redirect( 'https://restrictcontentpro.com/account/?sh_action=update#tabs=1' ); exit;
+				}
+			}
+
+		}
+
+		wp_redirect( 'https://pippinsplugins.com/account/update-billing-card/?sh_action=update' ); exit;
+
 
 	} catch ( Exception $e ) {
 
