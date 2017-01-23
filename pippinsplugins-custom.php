@@ -23,9 +23,79 @@ include(dirname(__FILE__) . '/includes/metaboxes.php');
 include(dirname(__FILE__) . '/includes/show-plugin-info.php');
 include(dirname(__FILE__) . '/includes/post-series.php');
 
+// Handles card update processing for Stripe and Dunning from Baremetrics
+function shd_maybe_redirect() {
+
+	if( ! is_page( 'update' ) ) {
+		return;
+	}
+
+	if( ! class_exists( '\Stripe\Stripe' ) ) {
+		return;
+	}
+
+	if( empty( $_GET['customer_id'] ) || empty( $_GET['email'] ) ) {
+		wp_redirect( home_url() ); exit; // Get out of here if loading page from anywhere but Baremetrics email
+	}
+
+	$email       = sanitize_text_field( $_GET['email'] );
+	$customer_id = sanitize_text_field( $_GET['customer_id'] );
+
+	/*
+	 * Check if this is an RCP customer
+	 */
+
+	\Stripe\Stripe::setApiKey( RCP_STRIPE_KEY );
+
+	try {
+
+		$customer = \Stripe\Customer::retrieve( $customer_id );
+		wp_redirect( 'https://restrictcontentpro.com/account/?sh_action=update#tabs=1' ); exit;
+
+	} catch ( Exception $e ) {
 
 
+		/*
+		 * Not and RCP customer, check if it's an AffiliateWP customer
+		 */
 
+		\Stripe\Stripe::setApiKey( AFFWP_STRIPE_KEY );
+
+		try {
+
+			$customer = \Stripe\Customer::retrieve( $customer_id );
+			wp_redirect( 'https://affiliatewp.com/account/?sh_action=update#tabs=1' ); exit;
+
+		} catch ( Exception $e ) {
+
+			/*
+			 * Not and RCP or AffWP customer, check if it's an EDD customer
+			 */
+
+			\Stripe\Stripe::setApiKey( EDD_STRIPE_KEY );
+
+			try {
+
+				$customer = \Stripe\Customer::retrieve( $customer_id );
+				wp_redirect( 'https://easydigitaldownloads.com/your-account/?sh_action=update#tab-subscriptions' ); exit;
+
+			} catch ( Exception $e ) {
+
+				$message = 'Customer ' . $customer_id . ' was not found. Email address was ' . $email;
+
+				wp_mail( 'pippin@pippinsplugins.com', 'Dunning Email Failed for ' . $email, $message );
+
+				// Still no customer found, bail
+				wp_redirect( home_url() ); exit;
+
+			}
+
+		}
+
+	}
+
+}
+add_action( 'template_redirect', 'shd_maybe_redirect' );
 
 add_filter( 'gform_enable_shortcode_notification_message', '__return_false' );
 function pw_edd_disable_api_logging() {
