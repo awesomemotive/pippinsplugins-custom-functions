@@ -16,7 +16,6 @@ if ( !defined('PIPPIN_PLUGIN_DIR')) {
 
 
 include(dirname(__FILE__) . '/includes/actions.php');
-include(dirname(__FILE__) . '/includes/notices.php');
 include(dirname(__FILE__) . '/includes/series.php');
 include(dirname(__FILE__) . '/includes/edd-custom.php');
 include(dirname(__FILE__) . '/includes/metaboxes.php');
