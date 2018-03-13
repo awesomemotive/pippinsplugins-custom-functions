@@ -535,3 +535,15 @@ function pp_edd_auto_apply_discount() {
 
 }
 //add_action( 'template_redirect', 'pp_edd_auto_apply_discount' );
+
+// Disable renewal notices for Sugar Calendar
+function pp_sg_disable_renewal_notice( $send, $license_id, $notice_id ) {
+	$license = edd_software_licensing()->get_license( $license_id );
+
+	if( 6377 === (int) $license->download_id ) {
+		$send = false;
+	}
+
+	return $send;
+}
+add_filter( 'edd_sl_send_renewal_reminder', 'pp_sg_disable_renewal_notice', 10, 3 );
